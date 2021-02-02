@@ -5,8 +5,9 @@ from random import randint as random
 from datetime import datetime
 import os
 import subprocess
+import configparser
 
-ROUTER = {'ip': "IP", 'netmask': 24}
+ROUTER = {}
 IP = ""
 WHICH_BOY = ""
 INTERFACE = ""
@@ -18,6 +19,31 @@ PORT_SCAN = ''
 CHECK_PORT_ONLINE = ''
 IDS = ''
 BAD_ARGUMENTS = ''
+
+
+def get_arguments():
+    global IP, ROUTER, INTERFACE, SPECIFIC_TARGETS, WHICH_BOY, VERBOSE
+    global PORT_SCAN, CHECK_PORT_ONLINE, IDS
+    global BAD_ARGUMENTS
+
+    config = configparser.ConfigParser()
+    config.read('configuration.ini')
+
+    common_part = config['COMMON']
+    good_boy = config['GOOD']
+    BAD_ARGUMENTS = config['BAD']
+
+    ROUTER['ip'] = common_part['router_ip']
+    ROUTER['netmask'] = common_part['netmask']
+    IP = "{0}/{1}".format(ROUTER['ip'], ROUTER['netmask'])
+    WHICH_BOY = common_part['which_boy']
+    INTERFACE = common_part['interface']
+    SPECIFIC_TARGETS = common_part['specific_targets'].split(',')
+    VERBOSE = common_part['verbose']
+
+    PORT_SCAN = good_boy['port_scanner']
+    CHECK_PORT_ONLINE = good_boy['check_cve']
+    IDS = good_boy['ids']
 
 
 def do_arp(target, location, report_file):
@@ -73,6 +99,7 @@ def scan_port(target, report_file):
 
 
 def main():
+
     try:
         os.mkdir("logs")
         os.mkdir("reports")
@@ -152,6 +179,10 @@ def main():
     except BaseException as e:
         print("[-] Error: {0}".format(e))
         LOG_FILE.write("\n[{0}] Error: {1}\n\n".format(datetime.now().strftime(DT_FORMAT), e))
+
+    except KeyError:
+        print("[-] Error! Misconfiguration, run the setup.py again!")
+        LOG_FILE.write("\n[{0}] Error because of misconfiguration...\n\n".format(datetime.now().strftime(DT_FORMAT)))
 
     finally:
         LOG_FILE.close()
