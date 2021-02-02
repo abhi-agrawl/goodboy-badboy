@@ -22,7 +22,7 @@ BAD_ARGUMENTS = ''
 
 def do_arp(target, location, report_file):
     arp_spoofer = common.ARPAttack(INTERFACE, target, ROUTER, LOG_FILE, VERBOSE, report_file)
-    packets_count = arp_spoofer.start_arp(location, WHICH_BOY)
+    packets_count = arp_spoofer.start_arp(location, WHICH_BOY, BAD_ARGUMENTS)
     return packets_count
 
 
@@ -90,7 +90,7 @@ def main():
 
         LOG_FILE.write("\n[{0}] Scan Results: {1}".format(datetime.now().strftime(DT_FORMAT), networks))
 
-        if IDS == 'yes':
+        if IDS == 'yes' or WHICH_BOY == 'B':
             for i in range(2):
                 subprocess.call("sudo sysctl -w net.ipv4.ip_forward=1",
                                 shell=True,
@@ -133,10 +133,13 @@ def main():
                     if PORT_SCAN == 'yes':
                         scan_port(target, report_file)
 
-                if IDS == 'yes':
+                if IDS == 'yes' or WHICH_BOY == 'B':
                     packets_sent = do_arp(target, location, report_file)
                     report_file.write("\n[{0}] Total ARP Packets Sent: {1}"
                                       .format(datetime.now().strftime(DT_FORMAT), packets_sent))
+                    if WHICH_BOY == 'B':
+                        print("[*] Please use kill command to stop all the bad_boy scripts.\n")
+
                 report_file.close()
 
         print("[+] Program is shutting down...")
