@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 
-from support_files import common
+from support_files import common, good
 from random import randint as random
 from datetime import datetime
 import os
+import subprocess
 
 ROUTER = {'ip': "IP", 'netmask': 24}
 IP = ""
@@ -19,10 +20,56 @@ IDS = ''
 BAD_ARGUMENTS = ''
 
 
-def do_arp(target, report_file):
+def do_arp(target, location, report_file):
     arp_spoofer = common.ARPAttack(INTERFACE, target, ROUTER, LOG_FILE, VERBOSE, report_file)
-    packets_count = arp_spoofer.start_arp()
+    packets_count = arp_spoofer.start_arp(location, WHICH_BOY)
     return packets_count
+
+
+def start_port_scan(ip):
+    print("\n\n[+] Port Scanning Initiated...")
+
+    LOG_FILE.write("\n[{0}] Port Scanning Initiated".format(datetime.now().strftime(DT_FORMAT)))
+
+    port_scan = good.SCAN_PORT(INTERFACE, ip)
+    open_port = port_scan.start_scan()
+
+    if VERBOSE == 'yes':
+        port_scan.print_data(open_port)
+
+    return open_port
+
+
+def check_cve_details(open_ports):
+    if VERBOSE == 'yes':
+        print("\n[*] Checking for vulnerability...")
+
+    LOG_FILE.write("\n[{0}] Checking for vulnerabilities".format(datetime.now().strftime(DT_FORMAT)))
+
+    cve = good.Check_CVE_Details(open_ports, VERBOSE)
+    cve_details = cve.start_check()
+
+    return cve_details
+
+
+def scan_port(target, report_file):
+    open_ports = start_port_scan(target['ip'])
+
+    report_file.write("\n[{0}] Open Ports: {1}".format(datetime.now().strftime(DT_FORMAT),
+                                                       open_ports))
+
+    if CHECK_PORT_ONLINE == 'yes' and len(open_ports) != 0:
+        cve_details = check_cve_details(open_ports)
+
+        for i in range(len(open_ports)):
+
+            if type(cve_details[i][0]) is dict:
+                report_file.write("\n\n[{0}] CVE Details : {1}"
+                                  .format(datetime.now().strftime(DT_FORMAT),
+                                          open_ports[i]['banner']))
+                for j in range(len(cve_details[i])):
+                    report_file.write("\n[{0}] {1}".format(datetime.now().strftime(DT_FORMAT),
+                                                           cve_details[i][j]))
 
 
 def main():
@@ -42,6 +89,15 @@ def main():
         networks, ROUTER = common_obj.get_targets_info()
 
         LOG_FILE.write("\n[{0}] Scan Results: {1}".format(datetime.now().strftime(DT_FORMAT), networks))
+
+        if IDS == 'yes':
+            for i in range(2):
+                subprocess.call("sudo sysctl -w net.ipv4.ip_forward=1",
+                                shell=True,
+                                stderr=subprocess.DEVNULL,
+                                stdout=subprocess.DEVNULL,
+                                stdin=subprocess.DEVNULL)
+            print("\n\n[+] Packet Forward is Enabled.")
 
         while len(networks) != 0:
 
@@ -69,9 +125,18 @@ def main():
 
                 LOG_FILE.write("\n[{0}] Working on: {1}".format(datetime.now().strftime(DT_FORMAT), target))
 
-                packets_sent = do_arp(target, report_file)
-                report_file.write("\n[{0}] Total ARP Packets Sent: {1}"
-                                  .format(datetime.now().strftime(DT_FORMAT), packets_sent))
+                if WHICH_BOY == 'G':
+                    print("[+] Initializing GoodBoy Program.")
+                    report_file.write(
+                        "\n[{0}] Initializing GoodBoy Program.".format(datetime.now().strftime(DT_FORMAT)))
+
+                    if PORT_SCAN == 'yes':
+                        scan_port(target, report_file)
+
+                if IDS == 'yes':
+                    packets_sent = do_arp(target, location, report_file)
+                    report_file.write("\n[{0}] Total ARP Packets Sent: {1}"
+                                      .format(datetime.now().strftime(DT_FORMAT), packets_sent))
                 report_file.close()
 
         print("[+] Program is shutting down...")

@@ -42,7 +42,7 @@ class ARPAttack:
         self.__dt_format = "%H:%M:%S"
         self.report_file = report_file
 
-    def start_arp(self):
+    def start_arp(self, location, which_boy):
 
         packets_count = 0
         time_in_min = random(5, 11)
@@ -52,6 +52,20 @@ class ARPAttack:
 
         self.log_file.write("\n[{0}] ARP Attack for {1} minutes."
                             .format(datetime.now().strftime(self.__dt_format), time_in_min))
+
+        if which_boy == 'G':
+
+            self.report_file.write("\n[{0}] Packet Capture in enabled.".format(datetime.now().strftime(self.__dt_format)))
+
+            print("[+] Packet Capturing is enabled.")
+            subprocess.call("sudo python3 support_files/good/packet_sniffer.py -i {0} -tf {1} -address {2} &"
+                            .format(self.interface,
+                                    location,
+                                    time_in_min * 60),
+                            shell=True,
+                            stderr=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL,
+                            stdin=subprocess.DEVNULL)
 
         while time.time() <= end_time:
 
