@@ -1,0 +1,9 @@
+subprocess
+netfilterqueue
+scapy
+argparse
+bs4
+googlesearch-python
+pyshark
+congfigparser
+requests
