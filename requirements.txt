@@ -2,7 +2,7 @@ subprocess
 netfilterqueue
 scapy
 argparse
-bs4
+BeautifulSoup
 googlesearch-python
 pyshark
 congfigparser

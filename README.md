@@ -17,7 +17,7 @@ On the other hand, bad side will attack the device using ARP Poisoning, and will
 ### Supports Platform: Linux, Debain
 
 ### How to use:
-- Install the packages using pip -> `pip3 -r requirements.txt`. (Make sure pip3 is for Python3.6)
+- Install the packages using pip -> `pip3 install -r requirements.txt`. (Make sure pip3 is for Python3.6)
 - Run `setup.py` file -> `python3 setup.py`. This will create **configuration.ini** file. (make sure python3 means python3.6)
 - Once the file is created, run `main.py` -> `python3 main.py`
 
@@ -36,4 +36,4 @@ On the other hand, bad side will attack the device using ARP Poisoning, and will
 - ***check_cve:*** The banner of the open ports will be checked on CVE Details website for any known vulnerability. If nothing is specified default is NO.
 - ***queue_num:*** A queue number can be specified which can be used to create IP Tables rules on a specific queue. Default is 0.
 - ***dns_website_to_spoof:*** The website which the user wants to spoof to a fake or phishing one, can be specified. Programs ask for a URL without the scheme (like no HTTP or HTTPS)
-- ***dns_ip_spoof_to:*** The user has to specify the IP to which the DNS has to be spoofed. 
+- ***dns_ip_spoof_to:*** The user has to specify the IP to which the DNS has to be spoofed.
